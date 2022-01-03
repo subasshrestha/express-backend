@@ -1,0 +1,10 @@
+# dependencies
+node_modules
+package-lock.json
+yarn.lock
+
+# configurations
+.env
+
+# logs
+error.log
