@@ -3,26 +3,18 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const morgan = require('morgan');
+const http = require('http');
 
+const { access } = require('./middlewares/access');
 const routeManager = require('./routes');
-const logger = require('./helpers/logger');
+const { logger } = require('./helpers/logger');
 const { handleError, ErrorHandler } = require('./helpers/errorHandler');
+const { corsOptions } = require('./helpers/cors');
 
 const app = express();
+const server = http.createServer(app);
 
-const corsAllowList = ['*'];
-const corsOptionsDelegate = (req, callback) => {
-  let corsOptions;
-  if (corsAllowList.indexOf(req.header('Origin')) !== -1) {
-    corsOptions = { origin: true };
-  } else {
-    corsOptions = { origin: false };
-  }
-
-  callback(null, corsOptions);
-};
-
-app.use(cors(corsOptionsDelegate));
+app.use(cors(corsOptions));
 
 mongoose.connect(process.env.MONGODB_URL, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => logger.info('Database Connected'))
@@ -32,7 +24,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
-app.use('/', routeManager);
+app.use('/api/v1', access, routeManager);
 
 app.use((req, res, next) => {
   const err = new ErrorHandler(400, 'Method not allowed');
@@ -49,6 +41,7 @@ app.use((err, req, res, next) => {
   handleError(err, res);
 });
 
-app.listen(process.env.PORT, () => {
-  logger.info(`App is started at port: ${process.env.PORT}`);
+// server starts working
+server.listen(process.env.PORT || 8000, () => {
+  logger.info(`App is started at port: ${process.env.PORT || 8000}`);
 });

@@ -23,4 +23,8 @@ const logger = winston.createLogger({
   ],
 });
 
-module.exports = logger;
+const logObject = (obj = {}) => {
+  logger.info(`${JSON.stringify(obj, null, ' ')}`);
+};
+
+module.exports = { logger, logObject };
