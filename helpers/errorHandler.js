@@ -14,4 +14,8 @@ function handleError(err, res) {
   });
 }
 
-module.exports = { ErrorHandler, handleError };
+const catchAsync = (fn) => (req, res, next) => {
+  fn(req, res, next).catch(next);
+};
+
+module.exports = { ErrorHandler, handleError, catchAsync };
