@@ -7,7 +7,7 @@ const http = require('http');
 const rateLimit = require('express-rate-limit');
 const RedisStore = require('rate-limit-redis');
 
-const { access } = require('./middlewares/access');
+const { access } = require('./middleware/access');
 const routeManager = require('./routes');
 const { logger } = require('./helpers/logger');
 const { handleError, ErrorHandler } = require('./helpers/errorHandler');
@@ -26,7 +26,6 @@ const limiter = rateLimit({
   }),
 });
 
-app.enable('trust proxy');
 app.use(cors(corsOptions));
 app.use(limiter);
 app.use(express.json());
@@ -34,6 +33,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
 app.use('/api/v1', access, routeManager);
+
+app.get('/', (req, res) => res.json({
+  status: 'success',
+  message: 'Connection Established',
+}));
 
 app.use((req, res, next) => {
   const err = new ErrorHandler(400, 'Method not allowed');
