@@ -1,10 +1,8 @@
-/* eslint-disable no-unused-vars */
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const morgan = require('morgan');
-const http = require('http');
 const rateLimit = require('express-rate-limit');
 const RedisStore = require('rate-limit-redis');
 
@@ -26,6 +24,11 @@ const limiter = rateLimit({
     sendCommand: (...args) => redisClient.call(...args),
   }),
 });
+
+// Mongodb connection
+mongoose.connect(process.env.MONGODB_URL, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => logger.info('MongoDB:: Database Connected'))
+  .catch((err) => logger.error(err));
 
 app.use(cors(corsOptions));
 app.use(limiter);
@@ -61,11 +64,4 @@ app.use((err, req, res, next) => {
   handleError(err, res);
 });
 
-mongoose.connect(process.env.MONGODB_URL, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => logger.info('MongoDB:: Database Connected'))
-  .catch((err) => logger.error(err));
-
-const server = http.createServer(app);
-server.listen(process.env.PORT || 8000, () => {
-  logger.info(`App is started at port: ${process.env.PORT || 8000}`);
-});
+module.exports = app;
