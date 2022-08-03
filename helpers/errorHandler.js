@@ -10,7 +10,7 @@ class ErrorHandler extends Error {
 function handleError(err, res) {
   res.status(err.StatusCode || 500).json({
     status: 'error',
-    message: err.isOperational ? err.message : 'Internal server error',
+    message: err.message ?? 'Internal server error',
   });
 }
 

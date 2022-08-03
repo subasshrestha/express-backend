@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
@@ -45,10 +46,16 @@ app.use((req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-  if (!err.isOperational) {
+  if (!err.isOperational && !['SyntaxError'].includes(err.name)) {
     logger.log({
       level: 'error',
-      message: err.stack,
+      message: `${err.message}
+    endpoint: ${req.url}
+    method: ${req.method}
+    headers: ${JSON.stringify(req.headers)}
+    body: ${JSON.stringify(req.body)}
+    ${err.stack}
+      `,
     });
   }
   handleError(err, res);
